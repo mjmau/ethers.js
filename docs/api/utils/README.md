@@ -4,7 +4,6 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 Utilities
 =========
 
@@ -13,16 +12,28 @@ These utilities are used extensively within the library, but
 are also quite useful for application developers.
 
 
+* [Application Binary Interface](abi)
+  * [Interface](abi/interface)
+    * [Creating Instances](abi/interface)
+    * [Properties](abi/interface)
+    * [Formatting](abi/interface)
+    * [Fragment Access](abi/interface)
+    * [Signature and Topic Hashes](abi/interface)
+    * [Encoding Data](abi/interface)
+    * [Decoding Data](abi/interface)
+    * [Parsing](abi/interface)
+    * [Types](abi/interface)
+    * [Specifying Fragments](abi/interface)
+  * [Fragments](abi/fragments)
+    * [Formats](abi/fragments)
+    * [Fragment](abi/fragments)
+    * [ConstructorFragment](abi/fragments)
+    * [EventFragment](abi/fragments)
+    * [FunctionFragment](abi/fragments)
+    * [ParamType](abi/fragments)
 * [Addresses](address)
   * [Address Formats](address)
   * [Functions](address)
-* [Application Binary Interface](abi)
-  * [Formats](abi)
-  * [Fragment](abi)
-  * [ConstructorFragment](abi)
-  * [EventFragment](abi)
-  * [FunctionFragment](abi)
-  * [ParamType](abi)
 * [BigNumber](bignumber)
   * [Types](bignumber)
   * [Creating Instances](bignumber)
@@ -35,6 +46,7 @@ are also quite useful for application developers.
   * [Array Manipulation](bytes)
   * [Hexstring Manipulation](bytes)
   * [Signature Conversion](bytes)
+  * [Random Bytes](bytes)
 * [Constants](constants)
   * [Bytes](constants)
   * [Strings](constants)
@@ -42,15 +54,30 @@ are also quite useful for application developers.
 * [Display Logic and Input](display-logic)
   * [Units](display-logic)
   * [Functions](display-logic)
+* [Encoding Utilities](encoding)
+  * [Base58](encoding)
+  * [Base64](encoding)
+  * [Recursive-Length Prefix](encoding)
 * [FixedNumber](fixednumber)
-  * [FixedFormat](fixednumber)
   * [Creating Instances](fixednumber)
   * [Properties](fixednumber)
   * [Methods](fixednumber)
+  * [FixedFormat](fixednumber)
 * [Hashing Algorithms](hashing)
   * [Cryptographic Hashing](hashing)
   * [Common Hashing Helpers](hashing)
   * [Solidity Hashing Algorithms](hashing)
+* [HD Wallet](hdnode)
+  * [Types](hdnode)
+  * [HDNode](hdnode)
+  * [Other Functions](hdnode)
+* [Logging](logger)
+  * [Logger](logger)
+  * [Errors](logger)
+  * [Log Levels](logger)
+* [Property Utilities](properties)
+* [Signing Key](signing-key)
+  * [Other Functions](signing-key)
 * [Strings](strings)
   * [Bytes32String](strings)
   * [UTF-8 Strings](strings)
@@ -59,8 +86,12 @@ are also quite useful for application developers.
 * [Transactions](transactions)
   * [Types](transactions)
   * [Functions](transactions)
+* [Web Utilities](web)
+* [Wordlists](wordlists)
+  * [Wordlist](wordlists)
+  * [Languages](wordlists)
 
 
 
 -----
-**Content Hash:** 87e3535244311d1d85bda676c07cc903e6e0fe7d4c7207943dcf2e72bc33e3d9
+**Content Hash:** 5be9157e89f865d007e6b7e1fb3bb47369a474882824264c5241e5bb05c80865

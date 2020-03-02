@@ -4,7 +4,6 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 Sandbox Utility
 ===============
 
@@ -253,7 +252,7 @@ homestead>
 
 The `--xxx-mnemonic-password` is similar to the `--mnemonic-password` options,
 which uses a password to decrypt the account for a mnemonic, however it passes
-the password through the [scrypt](https://en.wikipedia.org/wiki/Scrypt)
+the password through the [scrypt](../../Users/ricmoo/Development/ethers/ethers.js-v5/https:/en.wikipedia.org/wiki/Scrypt)
 *password-based key derivation function* first, which is intentionally slow and makes
 a brute-force attack far more difficult.
 
@@ -280,4 +279,4 @@ This is still an experimental feature (hence the `xxx`).
 
 
 -----
-**Content Hash:** 92cdbc324ec6a29cc4cd55bf1cb14de1ef8a4512dbd2ab03d7304238269caed5
+**Content Hash:** 634cbc81bb5078d3676f94600cb7b4083777ff1b02e4681ae52ad62e5962bf5a

@@ -4,7 +4,6 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 Flatworm Docs
 =============
 
@@ -13,8 +12,8 @@ The *Flatworm Docs* rendering script is designed to be **very**
 simple, but provide enough formatting necessary for documenting
 JavaScript libraries.
 
-A lot of its inspiration came from [Read the Docs](https://github.com/readthedocs/sphinx_rtd_theme) and
-the [Sphinx](https://www.sphinx-doc.org/) project.
+A lot of its inspiration came from [Read the Docs](../Users/ricmoo/Development/ethers/ethers.js-v5/https:/github.com/readthedocs/sphinx_rtd_theme) and
+the [Sphinx](../Users/ricmoo/Development/ethers/ethers.js-v5/https:/www.sphinx-doc.org) project.
 
 
 Fragments
@@ -245,6 +244,18 @@ This extended directive function is available for:
 * _heading
 
 
+### @NAV<text>
+
+
+Sets the name in the breadcrumbs when not the current node.
+
+This extended directive function is available for:
+
+
+
+* _section
+
+
 ### @SRC<text>
 
 
@@ -266,4 +277,4 @@ This extended directive function is available for:
 
 
 -----
-**Content Hash:** 25456ca845a1572440a2c7a6658ef736782f92a39815df78455832aa8e13e5f4
+**Content Hash:** d9553352210e8259406507b6b50fc3a611a1dde0aab1a979cbcc6c22af677fb9

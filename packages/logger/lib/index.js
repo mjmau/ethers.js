@@ -42,14 +42,6 @@ var Logger = /** @class */ (function () {
             writable: false
         });
     }
-    Logger.prototype.setLogLevel = function (logLevel) {
-        var level = LogLevels[logLevel];
-        if (level == null) {
-            this.warn("invalid log level - " + logLevel);
-            return;
-        }
-        LogLevel = level;
-    };
     Logger.prototype._log = function (logLevel, args) {
         if (LogLevel > LogLevels[logLevel]) {
             return;
@@ -78,8 +70,9 @@ var Logger = /** @class */ (function () {
         this._log(Logger.levels.WARNING, args);
     };
     Logger.prototype.makeError = function (message, code, params) {
+        // Errors are being censored
         if (_censorErrors) {
-            return new Error("unknown error");
+            return this.makeError("censored error", code, {});
         }
         if (!code) {
             code = Logger.errors.UNKNOWN_ERROR;
@@ -192,6 +185,11 @@ var Logger = /** @class */ (function () {
         return _globalLogger;
     };
     Logger.setCensorship = function (censorship, permanent) {
+        if (!censorship && permanent) {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
         if (_permanentCensorErrors) {
             if (!censorship) {
                 return;
@@ -202,6 +200,14 @@ var Logger = /** @class */ (function () {
         }
         _censorErrors = !!censorship;
         _permanentCensorErrors = !!permanent;
+    };
+    Logger.setLogLevel = function (logLevel) {
+        var level = LogLevels[logLevel];
+        if (level == null) {
+            Logger.globalLogger().warn("invalid log level - " + logLevel);
+            return;
+        }
+        LogLevel = level;
     };
     Logger.errors = {
         ///////////////////

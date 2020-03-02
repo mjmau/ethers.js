@@ -3,6 +3,39 @@ Changelog
 
 This change log is managed by `scripts/cmds/update-versions` but may be manually updated.
 
+ethers/v5.0.0-beta.175 (2020-02-27 19:53)
+-----------------------------------------
+
+  - Fix address-less filter listening in Provider. ([#741](https://github.com/ethers-io/ethers.js/issues/741); [64dccb2](https://github.com/ethers-io/ethers.js/commit/64dccb275c68ebb40328350d4ab5be0f29b8a02e))
+  - Added sync version of wallet decryption. ([0ad94cd](https://github.com/ethers-io/ethers.js/commit/0ad94cdf8137259bedb38c0dc949b61570bcdac0), [6809c37](https://github.com/ethers-io/ethers.js/commit/6809c370c027aea148466c00d3ce09c6d0ee6ddc))
+
+ethers/v5.0.0-beta.175 (2020-02-27 19:38)
+-----------------------------------------
+
+  - Fix address-less filter listening in Provider. ([#741](https://github.com/ethers-io/ethers.js/issues/741); [64dccb2](https://github.com/ethers-io/ethers.js/commit/64dccb275c68ebb40328350d4ab5be0f29b8a02e))
+  - Added sync version of wallet decryption. ([0ad94cd](https://github.com/ethers-io/ethers.js/commit/0ad94cdf8137259bedb38c0dc949b61570bcdac0))
+
+ethers/v5.0.0-beta.174 (2020-02-25 14:57)
+-----------------------------------------
+
+  - Reduced default Provider quorum for testnets. ([1cfab31](https://github.com/ethers-io/ethers.js/commit/1cfab3173c3d0519beffc054efe73f70b7d28501))
+  - Added JSON-RPC debugging on error responses. ([ad27600](https://github.com/ethers-io/ethers.js/commit/ad27600c699827858e7343adff2d4fa622248e42))
+  - Fixed setLogLevel to affect global logging. ([ac51a88](https://github.com/ethers-io/ethers.js/commit/ac51a88c2913d7055e050c91d7d96bb42abf6656))
+  - Renamed interface getTopic to getEventTopic. ([f61f34b](https://github.com/ethers-io/ethers.js/commit/f61f34bfb295bafee3b7ee426efa696aaa9bbafe))
+  - Fix log parsing when no matching topic hash is found. ([#733](https://github.com/ethers-io/ethers.js/issues/733); [a5d2ec5](https://github.com/ethers-io/ethers.js/commit/a5d2ec534f75b21eebe69a789a3c43c33014a825), [4b8e198](https://github.com/ethers-io/ethers.js/commit/4b8e198bf209fcf0aea55018d8940355ea4345de), [89ac9f4](https://github.com/ethers-io/ethers.js/commit/89ac9f4f298ac340c4429e8ebdacd29962eba7f4))
+
+ethers/v5.0.0-beta.173 (2020-02-12 17:09)
+-----------------------------------------
+
+  - Added experimental EipWrappedProvider. ([944600d](https://github.com/ethers-io/ethers.js/commit/944600d779564c500ab98d3265286a0717642614))
+  - Updated signature for JsonRpcProvider.send to match EIP-1193. ([b962b59](https://github.com/ethers-io/ethers.js/commit/b962b59ab72e67bc4566a361964e42cf1b791025))
+  - Added binary literal support to ASM grammar. ([375bd15](https://github.com/ethers-io/ethers.js/commit/375bd15594a3179432e8452d819d91ea72b4bdd8))
+  - Added explicit pop placeholders to ASM dialect. ([a6b696d](https://github.com/ethers-io/ethers.js/commit/a6b696d8bd03c4027b52fe23745f066d158f1420))
+  - Added position independent code option for asm. ([89615c5](https://github.com/ethers-io/ethers.js/commit/89615c59d385a58fa79b6bbd8eae53c30e45fe96))
+  - Added ASM semantic checking and the Pop placeholder. ([a33bf0e](https://github.com/ethers-io/ethers.js/commit/a33bf0e37f4f969cc03b85ebf0dbadcf3e9b068a))
+  - Better type safety for defineReadOnly. ([e7adc84](https://github.com/ethers-io/ethers.js/commit/e7adc84a972968f39a983efb6f21b6ceaacd6cc5))
+  - Fixed CLI sandbox quiting after prompt entry. ([ff9bc2a](https://github.com/ethers-io/ethers.js/commit/ff9bc2a282e617125bbca76702dec85149661390))
+
 ethers/v5.0.0-beta.172 (2020-02-04 00:59)
 -----------------------------------------
 

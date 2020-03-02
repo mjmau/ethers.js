@@ -1,5 +1,3 @@
-_title: API Providers
-
 _section: API Providers
 
 There are many services which offer a web API for accessing
@@ -26,7 +24,7 @@ _definition: **Supported Networks**
 
 - Homestead (Mainnet)
 - Ropsten (proof-of-work testnet)
-- Rinkeby (proof-of-Authority testnet)
+- Rinkeby (proof-of-authority testnet)
 - G&ouml;rli (clique testnet)
 - Kovan (proof-of-authority testnet)
 
@@ -40,7 +38,7 @@ _definition: **Supported Networks**
 
 - Homestead (Mainnet)
 - Ropsten (proof-of-work testnet)
-- Rinkeby (proof-of-Authority testnet)
+- Rinkeby (proof-of-authority testnet)
 - G&ouml;rli (clique testnet)
 - Kovan (proof-of-authority testnet)
 
@@ -53,7 +51,7 @@ _definition: **Supported Networks**
 
 - Homestead (Mainnet)
 - Ropsten (proof-of-work testnet)
-- Rinkeby (proof-of-Authority testnet)
+- Rinkeby (proof-of-authority testnet)
 - G&ouml;rli (clique testnet)
 - Kovan (proof-of-authority testnet)
 

@@ -4,7 +4,6 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 Hardware Wallets
 ================
 
@@ -14,7 +13,7 @@ LedgerSigner
 ------------
 
 
-The [Ledger Hardware Wallets](https://www.ledger.com) are a fairly
+The [Ledger Hardware Wallets](../../../Users/ricmoo/Development/ethers/ethers.js-v5/https:/www.ledger.com) are a fairly
 popular brand.
 
 TODO: importing
@@ -35,4 +34,4 @@ determined by the environment; in node the default is "hid" and in the browser
 
 
 -----
-**Content Hash:** 240366cd9757f396d08ed65ebfceafa51f82bfc44c04695ab68e3560e7a0016b
+**Content Hash:** 04412211499f34796f91e7112977e6f84607638be72dc600e488df07c4465805

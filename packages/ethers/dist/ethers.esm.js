@@ -3455,7 +3455,7 @@ var bn = createCommonjsModule(function (module) {
 });
 var bn_1 = bn.BN;
 
-const version = "logger/5.0.0-beta.134";
+const version = "logger/5.0.0-beta.135";
 
 "use strict";
 let _permanentCensorErrors = false;
@@ -3499,14 +3499,6 @@ class Logger {
             writable: false
         });
     }
-    setLogLevel(logLevel) {
-        const level = LogLevels[logLevel];
-        if (level == null) {
-            this.warn("invalid log level - " + logLevel);
-            return;
-        }
-        LogLevel = level;
-    }
     _log(logLevel, args) {
         if (LogLevel > LogLevels[logLevel]) {
             return;
@@ -3523,8 +3515,9 @@ class Logger {
         this._log(Logger.levels.WARNING, args);
     }
     makeError(message, code, params) {
+        // Errors are being censored
         if (_censorErrors) {
-            return new Error("unknown error");
+            return this.makeError("censored error", code, {});
         }
         if (!code) {
             code = Logger.errors.UNKNOWN_ERROR;
@@ -3637,6 +3630,11 @@ class Logger {
         return _globalLogger;
     }
     static setCensorship(censorship, permanent) {
+        if (!censorship && permanent) {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
         if (_permanentCensorErrors) {
             if (!censorship) {
                 return;
@@ -3647,6 +3645,14 @@ class Logger {
         }
         _censorErrors = !!censorship;
         _permanentCensorErrors = !!permanent;
+    }
+    static setLogLevel(logLevel) {
+        const level = LogLevels[logLevel];
+        if (level == null) {
+            Logger.globalLogger().warn("invalid log level - " + logLevel);
+            return;
+        }
+        LogLevel = level;
     }
 }
 Logger.errors = {
@@ -4742,7 +4748,7 @@ var lib_esm$2 = /*#__PURE__*/Object.freeze({
 	Description: Description
 });
 
-const version$4 = "abi/5.0.0-beta.145";
+const version$4 = "abi/5.0.0-beta.146";
 
 "use strict";
 const logger$4 = new Logger(version$4);
@@ -7342,7 +7348,7 @@ class Interface {
     static getSighash(functionFragment) {
         return hexDataSlice(id(functionFragment.format()), 0, 4);
     }
-    static getTopic(eventFragment) {
+    static getEventTopic(eventFragment) {
         return id(eventFragment.format());
     }
     // Find a function definition by any means necessary (unless it is ambiguous)
@@ -7416,7 +7422,7 @@ class Interface {
         if (typeof (eventFragment) === "string") {
             eventFragment = this.getEvent(eventFragment);
         }
-        return getStatic(this.constructor, "getTopic")(eventFragment);
+        return getStatic(this.constructor, "getEventTopic")(eventFragment);
     }
     _decodeParams(params, data) {
         return this._abiCoder.decode(params, data);
@@ -7904,7 +7910,7 @@ class VoidSigner extends Signer {
     }
 }
 
-const version$a = "contracts/5.0.0-beta.143";
+const version$a = "contracts/5.0.0-beta.144";
 
 "use strict";
 const logger$e = new Logger(version$a);
@@ -8039,7 +8045,11 @@ function runMethod(contract, functionName, options) {
                     return wait(confirmations).then((receipt) => {
                         receipt.events = receipt.logs.map((log) => {
                             let event = deepCopy(log);
-                            let parsed = contract.interface.parseLog(log);
+                            let parsed = null;
+                            try {
+                                parsed = contract.interface.parseLog(log);
+                            }
+                            catch (e) { }
                             if (parsed) {
                                 event.args = parsed.args;
                                 event.decode = (data, topics) => {
@@ -9924,7 +9934,7 @@ hash.ripemd160 = hash.ripemd.ripemd160;
 var _version = createCommonjsModule(function (module, exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.version = "sha2/5.0.0-beta.134";
+exports.version = "sha2/5.0.0-beta.135";
 });
 
 var _version$1 = unwrapExports(_version);
@@ -13086,7 +13096,7 @@ function isValidMnemonic(mnemonic, wordlist) {
 var _version$4 = createCommonjsModule(function (module, exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.version = "random/5.0.0-beta.133";
+exports.version = "random/5.0.0-beta.134";
 });
 
 var _version$5 = unwrapExports(_version$4);
@@ -13948,7 +13958,7 @@ var aesJs = createCommonjsModule(function (module, exports) {
 })(commonjsGlobal);
 });
 
-const version$f = "json-wallets/5.0.0-beta.136";
+const version$f = "json-wallets/5.0.0-beta.137";
 
 "use strict";
 function looseArrayify(hexString) {
@@ -14570,6 +14580,12 @@ var scrypt = createCommonjsModule(function (module, exports) {
 });
 var scrypt_1 = scrypt.scrypt;
 
+var scrypt$1 = /*#__PURE__*/Object.freeze({
+	'default': scrypt,
+	__moduleExports: scrypt,
+	scrypt: scrypt_1
+});
+
 var rng;
 
 if (commonjsGlobal.crypto && crypto.getRandomValues) {
@@ -14804,130 +14820,137 @@ class KeystoreAccount extends Description {
         return !!(value && value._isKeystoreAccount);
     }
 }
+function _decrypt(data, key, ciphertext) {
+    const cipher = searchPath(data, "crypto/cipher");
+    if (cipher === "aes-128-ctr") {
+        const iv = looseArrayify(searchPath(data, "crypto/cipherparams/iv"));
+        const counter = new aesJs.Counter(iv);
+        const aesCtr = new aesJs.ModeOfOperation.ctr(key, counter);
+        return arrayify(aesCtr.decrypt(ciphertext));
+    }
+    return null;
+}
+function _getAccount(data, key) {
+    const ciphertext = looseArrayify(searchPath(data, "crypto/ciphertext"));
+    const computedMAC = hexlify(keccak256(concat([key.slice(16, 32), ciphertext]))).substring(2);
+    if (computedMAC !== searchPath(data, "crypto/mac").toLowerCase()) {
+        throw new Error("invalid password");
+    }
+    const privateKey = _decrypt(data, key.slice(0, 16), ciphertext);
+    if (!privateKey) {
+        logger$j.throwError("unsupported cipher", Logger.errors.UNSUPPORTED_OPERATION, {
+            operation: "decrypt"
+        });
+    }
+    const mnemonicKey = key.slice(32, 64);
+    const address = computeAddress(privateKey);
+    if (data.address) {
+        let check = data.address.toLowerCase();
+        if (check.substring(0, 2) !== "0x") {
+            check = "0x" + check;
+        }
+        if (getAddress(check) !== address) {
+            throw new Error("address mismatch");
+        }
+    }
+    const account = {
+        _isKeystoreAccount: true,
+        address: address,
+        privateKey: hexlify(privateKey)
+    };
+    // Version 0.1 x-ethers metadata must contain an encrypted mnemonic phrase
+    if (searchPath(data, "x-ethers/version") === "0.1") {
+        const mnemonicCiphertext = looseArrayify(searchPath(data, "x-ethers/mnemonicCiphertext"));
+        const mnemonicIv = looseArrayify(searchPath(data, "x-ethers/mnemonicCounter"));
+        const mnemonicCounter = new aesJs.Counter(mnemonicIv);
+        const mnemonicAesCtr = new aesJs.ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
+        const path = searchPath(data, "x-ethers/path") || defaultPath;
+        const locale = searchPath(data, "x-ethers/locale") || "en";
+        const entropy = arrayify(mnemonicAesCtr.decrypt(mnemonicCiphertext));
+        try {
+            const mnemonic = entropyToMnemonic(entropy, locale);
+            const node = HDNode.fromMnemonic(mnemonic, null, locale).derivePath(path);
+            if (node.privateKey != account.privateKey) {
+                throw new Error("mnemonic mismatch");
+            }
+            account.mnemonic = node.mnemonic;
+        }
+        catch (error) {
+            // If we don't have the locale wordlist installed to
+            // read this mnemonic, just bail and don't set the
+            // mnemonic
+            if (error.code !== Logger.errors.INVALID_ARGUMENT || error.argument !== "wordlist") {
+                throw error;
+            }
+        }
+    }
+    return new KeystoreAccount(account);
+}
+function pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc) {
+    return arrayify(browser_1$1(passwordBytes, salt, count, dkLen, prfFunc));
+}
+function pbkdf2(passwordBytes, salt, count, dkLen, prfFunc) {
+    return Promise.resolve(pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc));
+}
+function _computeKdfKey(data, password, pbkdf2Func, scryptFunc, progressCallback) {
+    const passwordBytes = getPassword(password);
+    const kdf = searchPath(data, "crypto/kdf");
+    if (kdf && typeof (kdf) === "string") {
+        const throwError = function (name, value) {
+            return logger$j.throwArgumentError("invalid key-derivation function parameters", name, value);
+        };
+        if (kdf.toLowerCase() === "scrypt") {
+            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
+            const N = parseInt(searchPath(data, "crypto/kdfparams/n"));
+            const r = parseInt(searchPath(data, "crypto/kdfparams/r"));
+            const p = parseInt(searchPath(data, "crypto/kdfparams/p"));
+            // Check for all required parameters
+            if (!N || !r || !p) {
+                throwError("kdf", kdf);
+            }
+            // Make sure N is a power of 2
+            if ((N & (N - 1)) !== 0) {
+                throwError("N", N);
+            }
+            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
+            if (dkLen !== 32) {
+                throwError("dklen", dkLen);
+            }
+            return scryptFunc(passwordBytes, salt, N, r, p, 64, progressCallback);
+        }
+        else if (kdf.toLowerCase() === "pbkdf2") {
+            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
+            let prfFunc = null;
+            const prf = searchPath(data, "crypto/kdfparams/prf");
+            if (prf === "hmac-sha256") {
+                prfFunc = "sha256";
+            }
+            else if (prf === "hmac-sha512") {
+                prfFunc = "sha512";
+            }
+            else {
+                throwError("prf", prf);
+            }
+            const count = parseInt(searchPath(data, "crypto/kdfparams/c"));
+            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
+            if (dkLen !== 32) {
+                throwError("dklen", dkLen);
+            }
+            return pbkdf2Func(passwordBytes, salt, count, dkLen, prfFunc);
+        }
+    }
+    return logger$j.throwArgumentError("unsupported key-derivation function", "kdf", kdf);
+}
+function decryptSync(json, password) {
+    const data = JSON.parse(json);
+    const key = _computeKdfKey(data, password, pbkdf2Sync, undefined);
+    return _getAccount(data, key);
+}
 function decrypt$1(json, password, progressCallback) {
     return __awaiter$1(this, void 0, void 0, function* () {
         const data = JSON.parse(json);
-        const passwordBytes = getPassword(password);
-        const decrypt = function (key, ciphertext) {
-            const cipher = searchPath(data, "crypto/cipher");
-            if (cipher === "aes-128-ctr") {
-                const iv = looseArrayify(searchPath(data, "crypto/cipherparams/iv"));
-                const counter = new aesJs.Counter(iv);
-                const aesCtr = new aesJs.ModeOfOperation.ctr(key, counter);
-                return arrayify(aesCtr.decrypt(ciphertext));
-            }
-            return null;
-        };
-        const computeMAC = function (derivedHalf, ciphertext) {
-            return keccak256(concat([derivedHalf, ciphertext]));
-        };
-        const getAccount = function (key) {
-            return __awaiter$1(this, void 0, void 0, function* () {
-                const ciphertext = looseArrayify(searchPath(data, "crypto/ciphertext"));
-                const computedMAC = hexlify(computeMAC(key.slice(16, 32), ciphertext)).substring(2);
-                if (computedMAC !== searchPath(data, "crypto/mac").toLowerCase()) {
-                    throw new Error("invalid password");
-                }
-                const privateKey = decrypt(key.slice(0, 16), ciphertext);
-                const mnemonicKey = key.slice(32, 64);
-                if (!privateKey) {
-                    logger$j.throwError("unsupported cipher", Logger.errors.UNSUPPORTED_OPERATION, {
-                        operation: "decrypt"
-                    });
-                }
-                const address = computeAddress(privateKey);
-                if (data.address) {
-                    let check = data.address.toLowerCase();
-                    if (check.substring(0, 2) !== "0x") {
-                        check = "0x" + check;
-                    }
-                    if (getAddress(check) !== address) {
-                        throw new Error("address mismatch");
-                    }
-                }
-                const account = {
-                    _isKeystoreAccount: true,
-                    address: address,
-                    privateKey: hexlify(privateKey)
-                };
-                // Version 0.1 x-ethers metadata must contain an encrypted mnemonic phrase
-                if (searchPath(data, "x-ethers/version") === "0.1") {
-                    const mnemonicCiphertext = looseArrayify(searchPath(data, "x-ethers/mnemonicCiphertext"));
-                    const mnemonicIv = looseArrayify(searchPath(data, "x-ethers/mnemonicCounter"));
-                    const mnemonicCounter = new aesJs.Counter(mnemonicIv);
-                    const mnemonicAesCtr = new aesJs.ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
-                    const path = searchPath(data, "x-ethers/path") || defaultPath;
-                    const locale = searchPath(data, "x-ethers/locale") || "en";
-                    const entropy = arrayify(mnemonicAesCtr.decrypt(mnemonicCiphertext));
-                    try {
-                        const mnemonic = entropyToMnemonic(entropy, locale);
-                        const node = HDNode.fromMnemonic(mnemonic, null, locale).derivePath(path);
-                        if (node.privateKey != account.privateKey) {
-                            throw new Error("mnemonic mismatch");
-                        }
-                        account.mnemonic = node.mnemonic;
-                    }
-                    catch (error) {
-                        // If we don't have the locale wordlist installed to
-                        // read this mnemonic, just bail and don't set the
-                        // mnemonic
-                        if (error.code !== Logger.errors.INVALID_ARGUMENT || error.argument !== "wordlist") {
-                            throw error;
-                        }
-                    }
-                }
-                return new KeystoreAccount(account);
-            });
-        };
-        const kdf = searchPath(data, "crypto/kdf");
-        if (kdf && typeof (kdf) === "string") {
-            const throwError = function (name, value) {
-                return logger$j.throwArgumentError("invalid key-derivation function parameters", name, value);
-            };
-            if (kdf.toLowerCase() === "scrypt") {
-                const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
-                const N = parseInt(searchPath(data, "crypto/kdfparams/n"));
-                const r = parseInt(searchPath(data, "crypto/kdfparams/r"));
-                const p = parseInt(searchPath(data, "crypto/kdfparams/p"));
-                // Check for all required parameters
-                if (!N || !r || !p) {
-                    throwError("kdf", kdf);
-                }
-                // Make sure N is a power of 2
-                if ((N & (N - 1)) !== 0) {
-                    throwError("N", N);
-                }
-                const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
-                if (dkLen !== 32) {
-                    throwError("dklen", dkLen);
-                }
-                const key = yield scrypt_1(passwordBytes, salt, N, r, p, 64, progressCallback);
-                //key = arrayify(key);
-                return getAccount(key);
-            }
-            else if (kdf.toLowerCase() === "pbkdf2") {
-                const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
-                let prfFunc = null;
-                const prf = searchPath(data, "crypto/kdfparams/prf");
-                if (prf === "hmac-sha256") {
-                    prfFunc = "sha256";
-                }
-                else if (prf === "hmac-sha512") {
-                    prfFunc = "sha512";
-                }
-                else {
-                    throwError("prf", prf);
-                }
-                const c = parseInt(searchPath(data, "crypto/kdfparams/c"));
-                const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
-                if (dkLen !== 32) {
-                    throwError("dklen", dkLen);
-                }
-                const key = arrayify(browser_1$1(passwordBytes, salt, c, dkLen, prfFunc));
-                return getAccount(key);
-            }
-        }
-        return logger$j.throwArgumentError("unsupported key-derivation function", "kdf", kdf);
+        const key = yield _computeKdfKey(data, password, pbkdf2, scrypt_1, progressCallback);
+        return _getAccount(data, key);
     });
 }
 function encrypt(account, password, options, progressCallback) {
@@ -15097,8 +15120,17 @@ function decryptJsonWallet(json, password, progressCallback) {
     }
     return Promise.reject(new Error("invalid JSON wallet"));
 }
+function decryptJsonWalletSync(json, password) {
+    if (isCrowdsaleWallet(json)) {
+        return decrypt(json, password);
+    }
+    if (isKeystoreWallet(json)) {
+        return decryptSync(json, password);
+    }
+    throw new Error("invalid JSON wallet");
+}
 
-const version$g = "wallet/5.0.0-beta.137";
+const version$g = "wallet/5.0.0-beta.138";
 
 "use strict";
 const logger$k = new Logger(version$g);
@@ -15212,6 +15244,9 @@ class Wallet extends Signer {
             return new Wallet(account);
         });
     }
+    static fromEncryptedJsonSync(json, password) {
+        return new Wallet(decryptJsonWalletSync(json, password));
+    }
     static fromMnemonic(mnemonic, path, wordlist) {
         if (!path) {
             path = defaultPath;
@@ -15223,7 +15258,7 @@ function verifyMessage(message, signature) {
     return recoverAddress(hashMessage(message), signature);
 }
 
-const version$h = "networks/5.0.0-beta.135";
+const version$h = "networks/5.0.0-beta.136";
 
 "use strict";
 const logger$l = new Logger(version$h);
@@ -15261,17 +15296,12 @@ function ethDefaultProvider(network) {
             return null;
         }
         if (providers.FallbackProvider) {
-            let quorum = providerList.length / 2;
+            let quorum = 1;
             if (options.quorum != null) {
                 quorum = options.quorum;
             }
-            else if (quorum > 2) {
-                if (network === "homestead") {
-                    quorum = 2;
-                }
-                else {
-                    quorum = 1;
-                }
+            else if (network === "homestead") {
+                quorum = 2;
             }
             return new providers.FallbackProvider(providerList, quorum);
         }
@@ -15999,7 +16029,7 @@ var browser$a = /*#__PURE__*/Object.freeze({
 	encode: browser_2$3
 });
 
-const version$i = "web/5.0.0-beta.135";
+const version$i = "web/5.0.0-beta.136";
 
 "use strict";
 var __awaiter$2 = (window && window.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -16044,10 +16074,6 @@ function fetchJson(connection, json, processFunc) {
     };
     let allow304 = false;
     let timeout = 2 * 60 * 1000;
-    let throttle = 25;
-    if (options.throttleLimit) {
-        throttle = options.throttleLimit;
-    }
     if (typeof (connection) === "string") {
         url = connection;
     }
@@ -16111,9 +16137,6 @@ function fetchJson(connection, json, processFunc) {
         };
         return { promise, cancel };
     })();
-    if (throttle == 100) {
-        console.log(throttle);
-    }
     const runningFetch = (function () {
         return __awaiter$2(this, void 0, void 0, function* () {
             let response = null;
@@ -16250,7 +16273,7 @@ function poll(func, options) {
     });
 }
 
-const version$j = "providers/5.0.0-beta.153";
+const version$j = "providers/5.0.0-beta.155";
 
 "use strict";
 const logger$n = new Logger(version$j);
@@ -16873,7 +16896,7 @@ class BaseProvider extends Provider {
                             toBlock: blockNumber,
                             topics: topics
                         };
-                        if (!filter.address) {
+                        if (!filter.address || filter.address === "*") {
                             delete filter.address;
                         }
                         const runner = this.getLogs(filter).then((logs) => {
@@ -17787,9 +17810,7 @@ class JsonRpcProvider extends BaseProvider {
                         try {
                             return resolve(getNetwork(BigNumber.from(chainId).toNumber()));
                         }
-                        catch (error) {
-                            console.log("e3", error);
-                        }
+                        catch (error) { }
                     }
                     reject(logger$p.makeError("could not detect network", Logger.errors.NETWORK_ERROR));
                 }), 0);
@@ -17841,6 +17862,14 @@ class JsonRpcProvider extends BaseProvider {
                 provider: this
             });
             return result;
+        }, (error) => {
+            this.emit("debug", {
+                action: "response",
+                error: error,
+                request: request,
+                provider: this
+            });
+            throw error;
         });
     }
     perform(method, params) {
@@ -18159,6 +18188,7 @@ function checkLogTag(blockTag) {
     }
     return parseInt(blockTag.substring(2), 16);
 }
+const defaultApiKey$1 = "9D13ZE7XSBTJ94N9BNJ2MA33VMAY2YPIRB";
 class EtherscanProvider extends BaseProvider {
     constructor(network, apiKey) {
         logger$t.checkNew(new.target, EtherscanProvider);
@@ -18188,7 +18218,7 @@ class EtherscanProvider extends BaseProvider {
                 throw new Error("unsupported network");
         }
         defineReadOnly(this, "baseUrl", baseUrl);
-        defineReadOnly(this, "apiKey", apiKey);
+        defineReadOnly(this, "apiKey", apiKey || defaultApiKey$1);
     }
     perform(method, params) {
         const _super = Object.create(null, {
@@ -18961,13 +18991,13 @@ class InfuraProvider extends UrlJsonRpcProvider {
 "use strict";
 const logger$x = new Logger(version$j);
 // Special API key provided by Nodesmith for ethers.js
-const defaultApiKey$1 = "ETHERS_JS_SHARED";
+const defaultApiKey$2 = "ETHERS_JS_SHARED";
 class NodesmithProvider extends UrlJsonRpcProvider {
     static getApiKey(apiKey) {
         if (apiKey && typeof (apiKey) !== "string") {
             logger$x.throwArgumentError("invalid apiKey", "apiKey", apiKey);
         }
-        return apiKey || defaultApiKey$1;
+        return apiKey || defaultApiKey$2;
     }
     static getUrl(network, apiKey) {
         logger$x.warn("NodeSmith will be discontinued on 2019-12-20; please migrate to another platform.");
@@ -18997,13 +19027,6 @@ class NodesmithProvider extends UrlJsonRpcProvider {
 
 "use strict";
 const logger$y = new Logger(version$j);
-/*
-@TODO
-utils.defineProperty(Web3Signer, "onchange", {
-
-});
-
-*/
 class Web3Provider extends JsonRpcProvider {
     constructor(web3Provider, network) {
         logger$y.checkNew(new.target, Web3Provider);
@@ -19017,7 +19040,7 @@ class Web3Provider extends JsonRpcProvider {
                 this._sendAsync = web3Provider.send.bind(web3Provider);
             }
         }
-        if (!web3Provider || !this._sendAsync) {
+        if (!this._sendAsync) {
             logger$y.throwArgumentError("invalid web3Provider", "web3Provider", web3Provider);
         }
         defineReadOnly(this, "provider", web3Provider);
@@ -19033,7 +19056,7 @@ class Web3Provider extends JsonRpcProvider {
             const request = {
                 method: method,
                 params: params,
-                id: 42,
+                id: (this._nextId++),
                 jsonrpc: "2.0"
             };
             this._sendAsync(request, function (error, result) {
@@ -19347,7 +19370,7 @@ var utils$1 = /*#__PURE__*/Object.freeze({
 	Indexed: Indexed
 });
 
-const version$l = "ethers/5.0.0-beta.173";
+const version$l = "ethers/5.0.0-beta.175";
 
 "use strict";
 const errors = Logger.errors;

@@ -4,14 +4,13 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 License and Copyright
 =====================
 
 
 The ethers library (including all dependencies) are available
-under the [MIT License](https://en.m.wikipedia.org/wiki/MIT_License),
-which permits a wide variety of uses.
+under the [MIT License](../Users/ricmoo/Development/ethers/ethers.js-v5/https:/en.m.wikipedia.org/wiki/MIT_License), which permits a wide variety
+of uses.
 
 
 ### MIT License
@@ -40,4 +39,4 @@ SOFTWARE.
 
 
 -----
-**Content Hash:** 91addf1f9680c79e0db3ee454bc36cf3ba11b14221c075f21d8faf4d94146c65
+**Content Hash:** f93ae36efa5d9733ec319cccff24c21e2e991bca11a32fc4773794d1901f8f4e

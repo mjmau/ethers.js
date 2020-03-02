@@ -4,13 +4,47 @@ Documentation: [html](https://docs-beta.ethers.io/)
 
 -----
 
-
 Property Utilities
 ==================
 
 
 
-#### *utils* . **resolveProperties** ( anObject )  **=>** *Promise< any >*
+#### *ethers* . *utils* . **checkPropertoes** (  )  **=>** *void*
+
+
+
+
+
+
+#### *ethers* . *utils* . **deepCopy** ( anObject )  **=>** *any*
+
+
+
+
+
+
+#### *ethers* . *utils* . **defineReadOnly** ( anObject , name , value )  **=>** *void*
+
+
+
+
+
+
+#### *ethers* . *utils* . **getStatic** ( aConstructor , key )  **=>** *any*
+
+
+
+
+
+
+#### *ethers* . *utils* . **resolveProperties** ( anObject )  **=>** *Promise< any >*
+
+
+
+
+
+
+#### *ethers* . *utils* . **shallowCopy** ( anObject )  **=>** *any*
 
 
 
@@ -19,4 +53,4 @@ Property Utilities
 
 
 -----
-**Content Hash:** 6966c4808403140c68bb04e1fa15591474d5dd336cc882150ae390b0b80257f9
+**Content Hash:** 8e7a07176855d0fdb51c85a0d3ab0bdc2049989a4015d134914275ed11a57b65

@@ -41,14 +41,6 @@ export class Logger {
             writable: false
         });
     }
-    setLogLevel(logLevel) {
-        const level = LogLevels[logLevel];
-        if (level == null) {
-            this.warn("invalid log level - " + logLevel);
-            return;
-        }
-        LogLevel = level;
-    }
     _log(logLevel, args) {
         if (LogLevel > LogLevels[logLevel]) {
             return;
@@ -65,8 +57,9 @@ export class Logger {
         this._log(Logger.levels.WARNING, args);
     }
     makeError(message, code, params) {
+        // Errors are being censored
         if (_censorErrors) {
-            return new Error("unknown error");
+            return this.makeError("censored error", code, {});
         }
         if (!code) {
             code = Logger.errors.UNKNOWN_ERROR;
@@ -179,6 +172,11 @@ export class Logger {
         return _globalLogger;
     }
     static setCensorship(censorship, permanent) {
+        if (!censorship && permanent) {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
         if (_permanentCensorErrors) {
             if (!censorship) {
                 return;
@@ -189,6 +187,14 @@ export class Logger {
         }
         _censorErrors = !!censorship;
         _permanentCensorErrors = !!permanent;
+    }
+    static setLogLevel(logLevel) {
+        const level = LogLevels[logLevel];
+        if (level == null) {
+            Logger.globalLogger().warn("invalid log level - " + logLevel);
+            return;
+        }
+        LogLevel = level;
     }
 }
 Logger.errors = {
