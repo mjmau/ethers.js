@@ -541,7 +541,7 @@ function verifyState(value) {
     else if (value.payable != null) {
         result.payable = !!value.payable;
         result.stateMutability = (result.payable ? "payable" : "nonpayable");
-        result.constant = !result.payable;
+        result.constant = value.constant && !result.payable;
         if (value.constant != null && (value.constant !== result.constant)) {
             throw new Error("cannot have constant payable function");
         }
