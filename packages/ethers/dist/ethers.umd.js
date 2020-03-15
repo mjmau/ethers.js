@@ -4895,7 +4895,7 @@
 	var _version$8 = createCommonjsModule(function (module, exports) {
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.version = "abi/5.0.0-beta.146";
+	exports.version = "abi/5.0.0-beta.147";
 	});
 
 	var _version$9 = unwrapExports(_version$8);
@@ -22246,7 +22246,7 @@
 	var _version$K = createCommonjsModule(function (module, exports) {
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.version = "ethers/5.0.0-beta.176";
+	exports.version = "ethers/5.0.0-beta.177";
 	});
 
 	var _version$L = unwrapExports(_version$K);

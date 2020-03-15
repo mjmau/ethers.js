@@ -4748,7 +4748,7 @@ var lib_esm$2 = /*#__PURE__*/Object.freeze({
 	Description: Description
 });
 
-const version$4 = "abi/5.0.0-beta.146";
+const version$4 = "abi/5.0.0-beta.147";
 
 "use strict";
 const logger$4 = new Logger(version$4);
@@ -19636,7 +19636,7 @@ var utils$1 = /*#__PURE__*/Object.freeze({
 	Indexed: Indexed
 });
 
-const version$l = "ethers/5.0.0-beta.176";
+const version$l = "ethers/5.0.0-beta.177";
 
 "use strict";
 const errors = Logger.errors;
